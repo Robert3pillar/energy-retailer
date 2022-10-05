@@ -27,7 +27,7 @@ public class ConverterImpl implements Converter{
         List<UnitMarketDesignation> unitMarketDesignations = new ArrayList<>();
         List<MarketDesignationDto> marketDesignations = effectiveDateDto.getMarketDesignations();
         UnitMarketDesignation unitMarketDesignation;
-        Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(effectiveDateDto.getEffectiveDate().getDate());
+        Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(effectiveDateDto.getEffectiveDate().getFullDate());
 
 
         for (MarketDesignationDto marketDesignationDto : marketDesignations) {
