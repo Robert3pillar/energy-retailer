@@ -1,0 +1,10 @@
+package com.vistra.energyretailer.database.repositories;
+
+import com.vistra.energyretailer.database.model.Unit;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UnitRepository extends JpaRepository<Unit, Long> {
+
+}
