@@ -22,7 +22,7 @@ public class UnitMarketDesignation {
     @Column(name = "effective_date", nullable = false)
     private Date effectiveDate;
 
-    @Column(name = "registration_code", nullable = false)
+    @Column(name = "registration_code", unique=true, nullable = false)
     private String registrationCode;
 
     @Column(name = "market_share_percent", nullable = false)

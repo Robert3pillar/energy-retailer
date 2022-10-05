@@ -26,11 +26,13 @@ public class ConverterImpl implements Converter{
     public List<UnitMarketDesignation> effectiveDateDtoToUnitMarketDesignationConverter(Long unitId, EffectiveDateDto effectiveDateDto) throws ParseException {
         List<UnitMarketDesignation> unitMarketDesignations = new ArrayList<>();
         List<MarketDesignationDto> marketDesignations = effectiveDateDto.getMarketDesignations();
-        UnitMarketDesignation unitMarketDesignation = new UnitMarketDesignation();
+        UnitMarketDesignation unitMarketDesignation;
         Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(effectiveDateDto.getEffectiveDate().getDate());
 
 
         for (MarketDesignationDto marketDesignationDto : marketDesignations) {
+
+            unitMarketDesignation = new UnitMarketDesignation();
 
             unitMarketDesignation.setUnit(unitRepository.findById(unitId).get());
             unitMarketDesignation.setMarket(marketRepository.findById(marketDesignationDto.getMarketId()).get());
