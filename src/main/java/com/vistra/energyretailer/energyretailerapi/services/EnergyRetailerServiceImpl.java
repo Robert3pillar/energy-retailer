@@ -1,16 +1,17 @@
 package com.vistra.energyretailer.energyretailerapi.services;
 
 import com.vistra.energyretailer.database.model.Unit;
-import com.vistra.energyretailer.database.repositories.MarketRepository;
+import com.vistra.energyretailer.database.model.UnitMarketDesignation;
 import com.vistra.energyretailer.database.repositories.UnitMarketDesignationRepository;
 import com.vistra.energyretailer.database.repositories.UnitRepository;
-import com.vistra.energyretailer.database.repositories.UnitTypeRepository;
 import com.vistra.energyretailer.energyretailerapi.dtos.EffectiveDateDto;
+import com.vistra.energyretailer.energyretailerapi.helper.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.text.ParseException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class EnergyRetailerServiceImpl implements EnergyRetailerService {
@@ -19,21 +20,28 @@ public class EnergyRetailerServiceImpl implements EnergyRetailerService {
     private UnitRepository unitRepository;
 
     @Autowired
-    private UnitTypeRepository unitTypeRepository;
-
-    @Autowired
-    private MarketRepository marketRepository;
-
-    @Autowired
     private UnitMarketDesignationRepository unitMarketDesignationRepository;
 
+    @Autowired
+    private Converter converter;
+
     @Override
-    public boolean saveUnitMarketDesignation(Long unitId, EffectiveDateDto effectiveDate) {
-        return false;
+    public boolean saveUnitMarketDesignation(Long unitId, EffectiveDateDto effectiveDate) throws ParseException {
+        List<UnitMarketDesignation> unitMarketDesignations;
+
+        unitMarketDesignations = converter.effectiveDateDtoToUnitMarketDesignationConverter(unitId, effectiveDate);
+
+        unitMarketDesignations = unitMarketDesignationRepository.saveAll(unitMarketDesignations);
+
+        if (Objects.isNull(unitMarketDesignations)){
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public List<Unit> getAllUnits() {
-        return null;
+        return unitRepository.findAll();
     }
 }

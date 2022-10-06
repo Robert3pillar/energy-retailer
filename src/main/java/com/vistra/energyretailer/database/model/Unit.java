@@ -35,7 +35,7 @@ public class Unit {
 
     @OneToOne(targetEntity = UnitType.class)
     @JoinColumn(name = "unit_type_id", referencedColumnName = "id")
-    private Long unitTypeId;
+    private UnitType unitType;
 
     @Column(name = "draft")
     private Boolean draft;
@@ -46,14 +46,14 @@ public class Unit {
     public Unit() {
     }
 
-    public Unit(Long id, String name, String internalShortName, String internalLongName, Date unitStartDate, Date unitEndDate, Long unitTypeId, Boolean draft, String unitIdentifier) {
+    public Unit(Long id, String name, String internalShortName, String internalLongName, Date unitStartDate, Date unitEndDate, UnitType unitType, Boolean draft, String unitIdentifier) {
         this.id = id;
         this.name = name;
         this.internalShortName = internalShortName;
         this.internalLongName = internalLongName;
         this.unitStartDate = unitStartDate;
         this.unitEndDate = unitEndDate;
-        this.unitTypeId = unitTypeId;
+        this.unitType = unitType;
         this.draft = draft;
         this.unitIdentifier = unitIdentifier;
     }
@@ -102,12 +102,12 @@ public class Unit {
         this.unitEndDate = unitEndDate;
     }
 
-    public Long getUnitTypeId() {
-        return unitTypeId;
+    public UnitType getUnitType() {
+        return unitType;
     }
 
-    public void setUnitTypeId(Long unitTypeId) {
-        this.unitTypeId = unitTypeId;
+    public void setUnitType(UnitType unitTypeId) {
+        this.unitType = unitTypeId;
     }
 
     public Boolean getDraft() {

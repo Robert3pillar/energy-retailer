@@ -12,17 +12,17 @@ public class UnitMarketDesignation {
     private Long id;
 
     @OneToOne(targetEntity = Unit.class)
-    @JoinColumn(name = "unit_id", referencedColumnName = "id", nullable = false)
-    private Long unitId;
+    @JoinColumn(name = "unit_id", referencedColumnName = "id")
+    private Unit unit;
 
     @OneToOne(targetEntity = Market.class)
-    @JoinColumn(name = "market_id", referencedColumnName = "id", nullable = false)
-    private Long marketId;
+    @JoinColumn(name = "market_id", referencedColumnName = "id")
+    private Market market;
 
     @Column(name = "effective_date", nullable = false)
     private Date effectiveDate;
 
-    @Column(name = "registration_code", nullable = false)
+    @Column(name = "registration_code", unique=true, nullable = false)
     private String registrationCode;
 
     @Column(name = "market_share_percent", nullable = false)
@@ -31,10 +31,10 @@ public class UnitMarketDesignation {
     public UnitMarketDesignation() {
     }
 
-    public UnitMarketDesignation(Long id, Long unitId, Long marketId, Date effectiveDate, String registrationCode, Integer marketSharePercent) {
+    public UnitMarketDesignation(Long id, Unit unit, Market market, Date effectiveDate, String registrationCode, Integer marketSharePercent) {
         this.id = id;
-        this.unitId = unitId;
-        this.marketId = marketId;
+        this.unit = unit;
+        this.market = market;
         this.effectiveDate = effectiveDate;
         this.registrationCode = registrationCode;
         this.marketSharePercent = marketSharePercent;
@@ -44,20 +44,20 @@ public class UnitMarketDesignation {
         return id;
     }
 
-    public Long getUnitId() {
-        return unitId;
+    public Unit getUnit() {
+        return unit;
     }
 
-    public void setUnitId(Long unitId) {
-        this.unitId = unitId;
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 
-    public Long getMarketId() {
-        return marketId;
+    public Market getMarket() {
+        return market;
     }
 
-    public void setMarketId(Long marketId) {
-        this.marketId = marketId;
+    public void setMarket(Market market) {
+        this.market = market;
     }
 
     public Date getEffectiveDate() {
