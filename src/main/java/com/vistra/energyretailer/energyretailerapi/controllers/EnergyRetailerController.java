@@ -37,7 +37,7 @@ public class EnergyRetailerController {
         validation = energyRetailerValidator.validatePostUnitMarketDesignationData(unitId, effectiveDate);
 
         if(!validation.isEmpty()){
-            ResponseEntity.badRequest().body(validation);
+            return ResponseEntity.badRequest().body(validation);
         }
 
         try {

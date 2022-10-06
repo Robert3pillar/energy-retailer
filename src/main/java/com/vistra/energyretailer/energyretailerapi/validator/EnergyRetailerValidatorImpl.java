@@ -6,7 +6,6 @@ import com.vistra.energyretailer.database.model.UnitMarketDesignation;
 import com.vistra.energyretailer.database.repositories.MarketRepository;
 import com.vistra.energyretailer.database.repositories.UnitMarketDesignationRepository;
 import com.vistra.energyretailer.database.repositories.UnitRepository;
-import com.vistra.energyretailer.database.repositories.UnitTypeRepository;
 import com.vistra.energyretailer.energyretailerapi.dtos.EffectiveDate;
 import com.vistra.energyretailer.energyretailerapi.dtos.EffectiveDateDto;
 import com.vistra.energyretailer.energyretailerapi.dtos.MarketDesignationDto;
@@ -35,13 +34,13 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
     public Map<String, String> validatePostUnitMarketDesignationData(Long unitId, EffectiveDateDto effectiveDate) {
         Map<String, String> validation = new HashMap<>();
 
-        validation = validateIfCommonDataIsEmpty(unitId, effectiveDate, validation);
+        validation = validateIfCommonDataIsNullOrEmpty(unitId, effectiveDate, validation);
 
         if (!validation.isEmpty()) {
             return validation;
         }
 
-        validation = validateIfMarketDesignationsAreEmpty(effectiveDate, validation);
+        validation = validateIfMarketDesignationsDataIsNullOrEmpty(effectiveDate, validation);
 
         if (!validation.isEmpty()) {
             return validation;
@@ -55,36 +54,28 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
 
         validation = validateMarketDesignations(effectiveDate.getMarketDesignations(), validation);
 
-        if (!validation.isEmpty()) {
-            return validation;
-        }
-
         return validation;
     }
 
-    private Map<String, String> validateIfCommonDataIsEmpty(Long unitId, EffectiveDateDto effectiveDate, Map<String, String> errors) {
+    private Map<String, String> validateIfCommonDataIsNullOrEmpty(Long unitId, EffectiveDateDto effectiveDate,
+                                                                  Map<String, String> errors) {
 
-        if (Objects.isNull(unitId)) {
-            errors.put("errorMessage", "UnitId value cannot be empty");
-            return errors;
-        }
-        if (Objects.isNull(effectiveDate.getEffectiveDate().getDate())) {
+        if (Objects.isNull(effectiveDate.getEffectiveDate())) {
             errors.put("errorMessage", "effectiveDate cannot be empty");
             return errors;
         }
-        if (Objects.isNull(effectiveDate.getEffectiveDate())) {
+        if (Objects.isNull(effectiveDate.getEffectiveDate().getDate())
+                || effectiveDate.getEffectiveDate().getDate().isEmpty()) {
             errors.put("errorMessage", "date value cannot be empty");
             return errors;
         }
-        if (Objects.isNull(effectiveDate.getEffectiveDate().getTime())) {
+        if (Objects.isNull(effectiveDate.getEffectiveDate().getTime())
+                || effectiveDate.getEffectiveDate().getTime().isEmpty()) {
             errors.put("errorMessage", "time value cannot be empty");
             return errors;
         }
-        if (Objects.isNull(effectiveDate.getMarketDesignations())) {
-            errors.put("errorMessage", "marketDesignations cannot be empty");
-            return errors;
-        }
-        if (Objects.isNull(effectiveDate.getMarketDesignations())) {
+        if (Objects.isNull(effectiveDate.getMarketDesignations())
+                || effectiveDate.getMarketDesignations().isEmpty()) {
             errors.put("errorMessage", "marketDesignations cannot be empty");
             return errors;
         }
@@ -92,11 +83,13 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
         return errors;
     }
 
-    private Map<String, String> validateIfMarketDesignationsAreEmpty(EffectiveDateDto effectiveDate, Map<String, String> errors) {
+    private Map<String, String> validateIfMarketDesignationsDataIsNullOrEmpty(EffectiveDateDto effectiveDate,
+                                                                              Map<String, String> errors) {
         List<MarketDesignationDto> marketDesignations = effectiveDate.getMarketDesignations();
 
         for (MarketDesignationDto marketDesignationDto : marketDesignations) {
-            if (Objects.isNull(marketDesignationDto.getRegistrationCode())) {
+            if (Objects.isNull(marketDesignationDto.getRegistrationCode())
+                    || marketDesignationDto.getRegistrationCode().isEmpty()) {
                 errors.put("errorMessage", "registrationCode cannot be empty");
                 return errors;
             }
@@ -133,12 +126,12 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
     }
 
     private Map<String, String> validateMarketDesignations(List<MarketDesignationDto> marketDesignations,
-                                                         Map<String, String> errors) {
+                                                           Map<String, String> errors) {
         Set<String> registrationCodes = new HashSet<>();
         Set<Long> marketIds = new HashSet<>();
         int marketShare = 0;
 
-        for (MarketDesignationDto marketDesignationDto : marketDesignations){
+        for (MarketDesignationDto marketDesignationDto : marketDesignations) {
             registrationCodes.add(marketDesignationDto.getRegistrationCode());
             marketIds.add(marketDesignationDto.getMarketId());
             marketShare += marketDesignationDto.getMarketShare();
@@ -152,17 +145,17 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
             }
         }
 
-        if(registrationCodes.size() < marketDesignations.size()){
+        if (registrationCodes.size() < marketDesignations.size()) {
             errors.put("errorMessage", "registrationCodes must be unique");
             return errors;
         }
 
-        if(marketIds.size() < marketDesignations.size()){
+        if (marketIds.size() < marketDesignations.size()) {
             errors.put("errorMessage", "marketIds must be unique");
             return errors;
         }
 
-        if(marketShare != MARKETSHAREFULL){
+        if (marketShare != MARKETSHAREFULL) {
             errors.put("errorMessage", "marketShare values sum must be equal to 100");
             return errors;
         }
