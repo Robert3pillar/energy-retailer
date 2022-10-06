@@ -2,6 +2,9 @@ package com.vistra.energyretailer.energyretailerapi.services;
 
 import com.vistra.energyretailer.database.model.Unit;
 import com.vistra.energyretailer.energyretailerapi.dtos.EffectiveDateDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.text.ParseException;
 import java.util.List;
@@ -16,8 +19,9 @@ public interface EnergyRetailerService {
 
     /**
      * Get all records on Unit Table
+     * @param pageRequest pagination and sorting
      * @return a list with all the Units
      */
-    public List<Unit> getAllUnits();
+    public Page<Unit> getAllUnits(PageRequest pageRequest);
 
 }

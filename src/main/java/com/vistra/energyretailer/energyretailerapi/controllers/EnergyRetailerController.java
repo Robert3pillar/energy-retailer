@@ -5,6 +5,10 @@ import com.vistra.energyretailer.energyretailerapi.dtos.EffectiveDateDto;
 import com.vistra.energyretailer.energyretailerapi.services.EnergyRetailerService;
 import com.vistra.energyretailer.energyretailerapi.validator.EnergyRetailerValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -57,7 +62,10 @@ public class EnergyRetailerController {
     }
 
     @GetMapping(path = "units", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Unit>> getAllUnits(){
-        return new ResponseEntity<>(energyRetailerService.getAllUnits(),HttpStatus.OK);
+    public ResponseEntity<Page<Unit>> getAllUnits(@RequestParam Optional<Integer> page,
+                                                  @RequestParam Optional<Integer> pageSize,
+                                                  @RequestParam Optional<String> sortBy){
+        return new ResponseEntity<>(energyRetailerService.getAllUnits(PageRequest.of(page.orElse(0), pageSize.orElse(10),
+                Sort.Direction.ASC, sortBy.orElse("id"))),HttpStatus.OK);
     }
 }
