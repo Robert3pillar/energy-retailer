@@ -6,14 +6,10 @@ import com.vistra.energyretailer.energyretailerapi.dtos.EffectiveDateDto;
 import java.text.ParseException;
 import java.util.List;
 
-/**
- * author: Robert Villafuerte Mora
- */
 public interface Converter {
 
     /**
-     *
-     * @param unitId id of the Unit
+     * @param unitId           id of the Unit
      * @param effectiveDateDto to be converted into UnitMarketDesignation
      * @return UnitMarketDesignation entity
      */

@@ -1,6 +1,13 @@
 package com.vistra.energyretailer.database.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
@@ -22,7 +29,7 @@ public class UnitMarketDesignation {
     @Column(name = "effective_date", nullable = false)
     private Date effectiveDate;
 
-    @Column(name = "registration_code", unique=true, nullable = false)
+    @Column(name = "registration_code", unique = true, nullable = false)
     private String registrationCode;
 
     @Column(name = "market_share_percent", nullable = false)
