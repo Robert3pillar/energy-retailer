@@ -7,7 +7,6 @@ import com.vistra.energyretailer.energyretailerapi.validator.EnergyRetailerValid
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,18 +28,22 @@ public class EnergyRetailerController {
     @Autowired
     EnergyRetailerValidator energyRetailerValidator;
 
-
+    /**
+     * @param unitId        id of Unit entity
+     * @param effectiveDate object that contains Market Designations
+     * @return response successful or with errors
+     */
     @PostMapping(path = "marketdesignations/{unitId}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity AddUnitMarketDesignation(@PathVariable("unitId") Long unitId,
-                                                   @RequestBody EffectiveDateDto effectiveDate){
+                                                   @RequestBody EffectiveDateDto effectiveDate) {
         boolean result;
-        Map<String,String> validation;
+        Map<String, String> validation;
 
         validation = energyRetailerValidator.validatePostUnitMarketDesignationData(unitId, effectiveDate);
 
-        if(!validation.isEmpty()){
+        if (!validation.isEmpty()) {
             return ResponseEntity.badRequest().body(validation);
         }
 
@@ -54,18 +56,24 @@ public class EnergyRetailerController {
             return ResponseEntity.internalServerError().body(map);
         }
 
-        if(!result){
+        if (!result) {
 
         }
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * @param page     pagination settings
+     * @param pageSize size of the page
+     * @param sortBy   sort settings
+     * @return All units paginated and sorted
+     */
     @GetMapping(path = "units", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<Unit>> getAllUnits(@RequestParam Optional<Integer> page,
                                                   @RequestParam Optional<Integer> pageSize,
-                                                  @RequestParam Optional<String> sortBy){
+                                                  @RequestParam Optional<String> sortBy) {
         return new ResponseEntity<>(energyRetailerService.getAllUnits(PageRequest.of(page.orElse(0), pageSize.orElse(10),
-                Sort.Direction.ASC, sortBy.orElse("id"))),HttpStatus.OK);
+                Sort.Direction.ASC, sortBy.orElse("id"))), HttpStatus.OK);
     }
 }

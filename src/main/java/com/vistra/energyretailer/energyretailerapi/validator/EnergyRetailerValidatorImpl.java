@@ -14,7 +14,13 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
@@ -46,7 +52,7 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
             return validation;
         }
 
-        validation = validateUnit(unitId, validation);
+        validation = validateIfUnitExists(unitId, validation);
 
         if (!validation.isEmpty()) {
             return validation;
@@ -57,76 +63,102 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
         return validation;
     }
 
+    /**
+     * @param unitId        id of Unit entity
+     * @param effectiveDate object that contains Market Designations
+     * @param error         object to be returned empty or with error
+     * @return error if exists
+     */
     private Map<String, String> validateIfCommonDataIsNullOrEmpty(Long unitId, EffectiveDateDto effectiveDate,
-                                                                  Map<String, String> errors) {
+                                                                  Map<String, String> error) {
 
         if (Objects.isNull(effectiveDate.getEffectiveDate())) {
-            errors.put("errorMessage", "effectiveDate cannot be empty");
-            return errors;
+            error.put("errorMessage", "effectiveDate cannot be empty");
+            return error;
         }
         if (Objects.isNull(effectiveDate.getEffectiveDate().getDate())
                 || effectiveDate.getEffectiveDate().getDate().isEmpty()) {
-            errors.put("errorMessage", "date value cannot be empty");
-            return errors;
+            error.put("errorMessage", "date value cannot be empty");
+            return error;
         }
         if (Objects.isNull(effectiveDate.getEffectiveDate().getTime())
                 || effectiveDate.getEffectiveDate().getTime().isEmpty()) {
-            errors.put("errorMessage", "time value cannot be empty");
-            return errors;
+            error.put("errorMessage", "time value cannot be empty");
+            return error;
         }
         if (Objects.isNull(effectiveDate.getMarketDesignations())
                 || effectiveDate.getMarketDesignations().isEmpty()) {
-            errors.put("errorMessage", "marketDesignations cannot be empty");
-            return errors;
+            error.put("errorMessage", "marketDesignations cannot be empty");
+            return error;
         }
 
-        return errors;
+        return error;
     }
 
+    /**
+     * @param effectiveDate object that contains Market Designations
+     * @param error         object to be returned empty or with error
+     * @return error if exists
+     */
     private Map<String, String> validateIfMarketDesignationsDataIsNullOrEmpty(EffectiveDateDto effectiveDate,
-                                                                              Map<String, String> errors) {
+                                                                              Map<String, String> error) {
         List<MarketDesignationDto> marketDesignations = effectiveDate.getMarketDesignations();
 
         for (MarketDesignationDto marketDesignationDto : marketDesignations) {
             if (Objects.isNull(marketDesignationDto.getRegistrationCode())
                     || marketDesignationDto.getRegistrationCode().isEmpty()) {
-                errors.put("errorMessage", "registrationCode cannot be empty");
-                return errors;
+                error.put("errorMessage", "registrationCode cannot be empty");
+                return error;
             }
             if (Objects.isNull(marketDesignationDto.getMarketShare())) {
-                errors.put("errorMessage", "marketShare cannot be empty");
-                return errors;
+                error.put("errorMessage", "marketShare cannot be empty");
+                return error;
             }
             if (Objects.isNull(marketDesignationDto.getMarketId())) {
-                errors.put("errorMessage", "marketId cannot be empty");
-                return errors;
+                error.put("errorMessage", "marketId cannot be empty");
+                return error;
             }
         }
 
-        return errors;
+        return error;
     }
 
-    private Map<String, String> validateUnit(Long unitId, Map<String, String> errors) {
+    /**
+     * @param unitId id of Unit entity
+     * @param error  object to be returned empty or with error
+     * @return error if exists
+     */
+    private Map<String, String> validateIfUnitExists(Long unitId, Map<String, String> error) {
         Optional<Unit> unit = unitRepository.findById(unitId);
         if (!unit.isPresent()) {
-            errors.put("errorMessage", "Unit not found");
-            return errors;
+            error.put("errorMessage", "Unit not found");
+            return error;
         }
-        return errors;
+        return error;
     }
 
-    private Map<String, String> validateDate(EffectiveDate effectiveDate, Map<String, String> errors) {
+    /**
+     * @param effectiveDate object that contains the Date
+     * @param error         object to be returned empty or with error
+     * @return error if exists
+     */
+    private Map<String, String> validateDateFormat(EffectiveDate effectiveDate, Map<String, String> error) {
         try {
             new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(effectiveDate.getFullDate());
         } catch (ParseException e) {
-            errors.put("errorMessage", "Date or time format not valid");
-            return errors;
+            error.put("errorMessage", "Date or time format not valid");
+            return error;
         }
-        return errors;
+        return error;
     }
 
+    /**
+     * @param marketDesignations list with market designations
+     * @param error              object to be returned empty or with error
+     * @return error if exists
+     */
     private Map<String, String> validateMarketDesignations(List<MarketDesignationDto> marketDesignations,
-                                                           Map<String, String> errors) {
+                                                           Map<String, String> error) {
         Set<String> registrationCodes = new HashSet<>();
         Set<Long> marketIds = new HashSet<>();
         int marketShare = 0;
@@ -135,53 +167,63 @@ public class EnergyRetailerValidatorImpl implements EnergyRetailerValidator {
             registrationCodes.add(marketDesignationDto.getRegistrationCode());
             marketIds.add(marketDesignationDto.getMarketId());
             marketShare += marketDesignationDto.getMarketShare();
-            errors = validateRegistrationCode(marketDesignationDto.getRegistrationCode(), errors);
-            if (!errors.isEmpty()) {
-                return errors;
+            error = validateIfRegistrationCodeExists(marketDesignationDto.getRegistrationCode(), error);
+            if (!error.isEmpty()) {
+                return error;
             }
-            errors = validateMarket(marketDesignationDto.getMarketId(), errors);
-            if (!errors.isEmpty()) {
-                return errors;
+            error = validateIfMarketExists(marketDesignationDto.getMarketId(), error);
+            if (!error.isEmpty()) {
+                return error;
             }
         }
 
         if (registrationCodes.size() < marketDesignations.size()) {
-            errors.put("errorMessage", "registrationCodes must be unique");
-            return errors;
+            error.put("errorMessage", "registrationCodes must be unique");
+            return error;
         }
 
         if (marketIds.size() < marketDesignations.size()) {
-            errors.put("errorMessage", "marketIds must be unique");
-            return errors;
+            error.put("errorMessage", "marketIds must be unique");
+            return error;
         }
 
         if (marketShare != MARKETSHAREFULL) {
-            errors.put("errorMessage", "marketShare values sum must be equal to 100");
-            return errors;
+            error.put("errorMessage", "marketShare values sum must be equal to 100");
+            return error;
         }
 
-        return errors;
+        return error;
     }
 
-    private Map<String, String> validateRegistrationCode(String registrationCode, Map<String, String> errors) {
+    /**
+     * @param registrationCode market designation registration code
+     * @param error            object to be returned empty or with error
+     * @return error if exists
+     */
+    private Map<String, String> validateIfRegistrationCodeExists(String registrationCode, Map<String, String> error) {
         Optional<UnitMarketDesignation> unitMarketDesignation =
                 unitMarketDesignationRepository.findByRegistrationCode(registrationCode);
 
         if (unitMarketDesignation.isPresent()) {
-            errors.put("errorMessage", "registrationCodes already exists");
-            return errors;
+            error.put("errorMessage", "registrationCodes already exists");
+            return error;
         }
 
-        return errors;
+        return error;
     }
 
-    private Map<String, String> validateMarket(Long marketId, Map<String, String> errors) {
+    /**
+     * @param marketId id of Market entity
+     * @param error    object to be returned empty or with error
+     * @return error if exists
+     */
+    private Map<String, String> validateIfMarketExists(Long marketId, Map<String, String> error) {
         Optional<Market> market = marketRepository.findById(marketId);
         if (!market.isPresent()) {
-            errors.put("errorMessage", "Market not found");
-            return errors;
+            error.put("errorMessage", "Market not found");
+            return error;
         }
-        return errors;
+        return error;
     }
 
 
